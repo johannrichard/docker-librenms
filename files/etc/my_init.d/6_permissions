@@ -1,23 +1,19 @@
-#!/bin/sh
+#!/bin/bash
 
 # Create a new librenms user and remap it to the given UID
 if [ ! -z "$PUID" ]; then
   if [ -z "$PGID" ]; then
     PGID=${PUID}
   fi
-  deluser librenms
-  delgroup www-data librenms
-  delgroup librenms
-  groupadd --gid ${PGID} librenms
-  usermod -a -G librenms www-data
-  useradd librenms -g librenms -d /opt/librenms -M -r -u ${PUID}
+  groupmod --gid ${PGID} librenms
+  usermod -u ${PUID} librenms
 fi
 
 # Don't `chown` if SKIP_CHOWN is set (Useful for NFS mounted shares) 
 if [ -z "$SKIP_CHOWN" ]; then
   
   if [ -f /opt/librenms/config.custom.php ]; then
-  	chown librenms:librenms /opt/librenms/config.custom.php
+  	chown librenms:librenms /opt/librenms/config.custom.php || true
   fi
 
   chown -R librenms:librenms /opt/librenms/conf.d /opt/librenms/logs /opt/librenms/rrd || true
